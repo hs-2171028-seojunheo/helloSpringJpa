@@ -48,6 +48,7 @@
     </div>
 
     <a class="btn" th:href="@{/products/create}">+ 새 상품 등록</a>
+    <a class="btn" th:href="@{/categories}">카테고리 목록</a>
 
     <div class="empty-msg" th:if="${#lists.isEmpty(products)}">
         등록된 상품이 없습니다. 새 상품을 등록해 주세요.
