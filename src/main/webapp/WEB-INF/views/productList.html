@@ -17,6 +17,14 @@
         h1 { border-bottom: 2px solid #4a90d9; padding-bottom: 10px; color: #2c3e50; }
         .btn { display: inline-block; padding: 8px 16px; background: #4a90d9; color: white; text-decoration: none; border-radius: 4px; margin-bottom: 16px; }
         .btn:hover { background: #357abd; }
+        input[type="text"], textarea, select {
+            width: 30%; padding: 10px 12px; border: 1px solid #ced4da;
+            border-radius: 4px; font-size: 1em; box-sizing: border-box;
+            font-family: inherit;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none; border-color: #4a90d9; box-shadow: 0 0 0 3px rgba(74,144,217,0.15);
+        }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th { background: #4a90d9; color: white; padding: 12px; text-align: left; }
         td { padding: 10px 12px; border-bottom: 1px solid #ddd; vertical-align: middle; }
@@ -48,11 +56,22 @@
     </div>
 
     <a class="btn" th:href="@{/products/create}">+ 새 상품 등록</a>
+    <a class="btn" th:href="@{/categories}">카테고리 목록</a>
 
     <div class="empty-msg" th:if="${#lists.isEmpty(products)}">
         등록된 상품이 없습니다. 새 상품을 등록해 주세요.
     </div>
-
+    <form th:action="@{/products}" method="get">
+        <input type="text" name="keyword" th:value="${keyword}" placeholder="상품명 검색"/>
+        <select name="categoryId">
+            <option value="">-- 전체 카테고리 --</option>
+            <option th:each="cat : ${categories}"
+                    th:value="${cat.id}" th:text="${cat.name}"
+                    th:selected="${cat.id == categoryId}"></option>
+        </select>
+        <button class="btn" type="submit">검색</button>
+    </form>
+    <p th:if="${#lists.isEmpty(products)}">검색 결과가 없습니다.</p>
     <table th:unless="${#lists.isEmpty(products)}">
         <thead>
             <tr>
@@ -80,7 +99,7 @@
                        th:href="@{/products/{id}(id=${product.id})}"
                        th:text="${product.name}">상품명</a>
                 </td>
-                <td th:text="${product.category != null ? product.category.name : '-'}">카테고리</td>
+                <td th:text="${product.category.name != null ? product.category.name : '-'}">카테고리</td>
 
                 <!--
                     #numbers.formatDecimal(): Thymeleaf 내장 유틸리티 객체
@@ -119,6 +138,6 @@
             </tr>
         </tbody>
     </table>
-
+    <div th:replace="~{footer :: Footer}"></div>
 </body>
 </html>

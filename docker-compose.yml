@@ -4,7 +4,7 @@
 # 이 파일 하나로 MySQL + Tomcat 환경을 한 번에 구성합니다.
 #
 # 실행 명령:
-#   mvn clean package          (1. WAR 빌드)
+#   mvn clean package -DskipTests          (1. WAR 빌드)
 #   docker-compose up -d       (2. 컨테이너 시작)
 #   docker-compose logs -f     (3. 로그 확인)
 #   docker-compose down        (4. 컨테이너 중지 및 제거)
