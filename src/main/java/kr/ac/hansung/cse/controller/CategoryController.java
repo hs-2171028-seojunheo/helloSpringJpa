@@ -50,6 +50,7 @@ public class CategoryController {
     }
 
     // Post /categories/{id}/delete => 삭제 처리
+    @PostMapping("/{id}/delete")
     public String deleteCategory(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             categoryService.deleteCategory(id);
