@@ -3,6 +3,7 @@ package kr.ac.hansung.cse.repository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import kr.ac.hansung.cse.model.Category;
+import kr.ac.hansung.cse.model.Product;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -36,6 +37,13 @@ public class CategoryRepository {
                 .getResultList();
         return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
+    // 삭제 전 연결 상품 수 확인
+    public long countProductsByCategoryId(Long categoryId) {
+        Long result = em.createQuery("SELECT COUNT(p) FROM Product p WHERE p.category.id = :id", Long.class)
+                .setParameter("id",categoryId)
+                .getSingleResult();
+        return result;
+    }
 
     // JOIN FETCH: N+1 문제 방지 (Category + Products 한 번에 로드)
     public Optional<Category> findByIdWithProducts(Long id) {
@@ -45,6 +53,12 @@ public class CategoryRepository {
                 .setParameter("id", id)
                 .getResultList();
         return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
+    }
+
+    //카테고리 id를 찾고 삭제
+    public void delete(Long id) {
+        Category category = em.find(Category.class, id);
+        if (category != null) em.remove(category);
     }
 }
 
