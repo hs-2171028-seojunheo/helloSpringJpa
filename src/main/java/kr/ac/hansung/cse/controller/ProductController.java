@@ -2,6 +2,7 @@ package kr.ac.hansung.cse.controller;
 
 import jakarta.validation.Valid;
 import kr.ac.hansung.cse.exception.ProductNotFoundException;
+import kr.ac.hansung.cse.model.Category;
 import kr.ac.hansung.cse.model.Product;
 import kr.ac.hansung.cse.model.ProductForm;
 import kr.ac.hansung.cse.service.CategoryService;
@@ -93,6 +94,8 @@ public class ProductController {
 
     @GetMapping("/create")
     public String showCreateForm(Model model) {
+        List<Category> categories = categoryService.getAllCategories();
+        model.addAttribute("categories", categories);
         model.addAttribute("productForm", new ProductForm());
         return "productForm";
     }
