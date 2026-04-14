@@ -53,7 +53,17 @@
     <div class="empty-msg" th:if="${#lists.isEmpty(products)}">
         등록된 상품이 없습니다. 새 상품을 등록해 주세요.
     </div>
-
+    <form class="form-group" th:action="@{/products}" method="get">
+        <input type="text" name="keyword" th:value="${keyword}" placeholder="상품명 검색"/>
+        <select name="categoryId">
+            <option value="">-- 전체 카테고리 --</option>
+            <option th:each="cat : ${categories}"
+                    th:value="${cat.id}" th:text="${cat.name}"
+                    th:selected="${cat.id == categoryId}"></option>
+        </select>
+        <button type="submit">검색</button>
+    </form>
+    <p th:if="${#lists.isEmpty(products)}">검색 결과가 없습니다.</p>
     <table th:unless="${#lists.isEmpty(products)}">
         <thead>
             <tr>
