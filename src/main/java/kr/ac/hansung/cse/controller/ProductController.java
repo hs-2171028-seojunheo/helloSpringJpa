@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import kr.ac.hansung.cse.exception.ProductNotFoundException;
 import kr.ac.hansung.cse.model.Product;
 import kr.ac.hansung.cse.model.ProductForm;
+import kr.ac.hansung.cse.service.CategoryService;
 import kr.ac.hansung.cse.service.ProductService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,9 +38,10 @@ import java.util.List;
 public class ProductController {
 
     private final ProductService productService;
-
-    public ProductController(ProductService productService) {
+    private final CategoryService categoryService;
+    public ProductController(ProductService productService, CategoryService categoryService) {
         this.productService = productService;
+        this.categoryService = categoryService;
     }
 
 
@@ -48,9 +50,20 @@ public class ProductController {
     // ─────────────────────────────────────────────────────────────────
 
     @GetMapping
-    public String listProducts(Model model) {
-        List<Product> products = productService.getAllProducts();
+    public String listProducts(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Long categoryId,
+            Model model) {
+        List<Product> products;
+        if (keyword != null && !keyword.isBlank()) {
+            products = productService.searchByName(keyword);
+        } else if (categoryId != null) {
+            products = productService.searchByCategoryId(categoryId);
+        } else { products = productService.getAllProducts(); }
         model.addAttribute("products", products);
+        model.addAttribute("categories", categoryService.getAllCategories());
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("categoryId", categoryId);
         return "productList";
     }
 
@@ -78,17 +91,6 @@ public class ProductController {
     // GET /products/create - 상품 등록 폼 표시
     // ─────────────────────────────────────────────────────────────────
 
-    /**
-     * 빈 ProductForm 객체를 Model에 담아 폼을 표시합니다.
-     *
-     * [ProductForm DTO를 사용하는 이유]
-     * 1. Bean Validation 어노테이션을 엔티티가 아닌 DTO에 적용합니다.
-     * 2. JPA 엔티티의 보호 생성자 문제를 우회합니다.
-     * 3. 외부에서 수정 불가한 필드(id 등)를 폼에서 분리합니다.
-     *
-     * Model attribute 이름: "productForm"
-     *   → Thymeleaf에서 th:object="${productForm}"으로 접근합니다.
-     */
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("productForm", new ProductForm());
@@ -99,28 +101,6 @@ public class ProductController {
     // POST /products/create - 상품 등록 처리
     // ─────────────────────────────────────────────────────────────────
 
-    /**
-     * @Valid: productForm에 선언된 Bean Validation 어노테이션을 실행합니다.
-     *         (@NotBlank, @NotNull, @DecimalMin 등)
-     *
-     * @ModelAttribute("productForm") ProductForm productForm:
-     *   - HTTP POST 요청 파라미터를 ProductForm 객체에 자동 바인딩합니다.
-     *   - "productForm" 이름으로 Model에 자동 등록됩니다.
-     *   - @Valid에 의해 검증이 수행됩니다.
-     *
-     * BindingResult bindingResult:
-     *   - 검증 결과(오류 목록)를 담는 객체입니다.
-     *   - 반드시 @ModelAttribute 파라미터 바로 다음에 위치해야 합니다.
-     *   - BindingResult가 없으면 검증 실패 시 MethodArgumentNotValidException 발생
-     *   - BindingResult가 있으면 오류를 직접 처리할 수 있습니다.
-     *
-     * [처리 흐름]
-     * ① Spring MVC가 폼 파라미터 → ProductForm 바인딩
-     * ② @Valid에 의해 Bean Validation 실행
-     * ③ bindingResult.hasErrors()로 오류 확인
-     *   - 오류 있음 → 폼 뷰로 돌아감 (오류 메시지 표시)
-     *   - 오류 없음 → 서비스 호출 → 리다이렉트 (PRG 패턴)
-     */
     @PostMapping("/create")
     public String createProduct(@Valid @ModelAttribute("productForm") ProductForm productForm,
                                 BindingResult bindingResult,
