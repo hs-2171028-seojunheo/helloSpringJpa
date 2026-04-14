@@ -99,6 +99,10 @@ public class ProductService {
         return productRepository.findByCategoryId(categoryId);
     }
 
+    public List<Product> searchByNameAndCategoryId (String name, Long categoryId) {
+        return productRepository.findByNameAndCategoryId(name, categoryId);
+    }
+
     @Transactional
     public void deleteProduct(Long id) {
         productRepository.delete(id);
