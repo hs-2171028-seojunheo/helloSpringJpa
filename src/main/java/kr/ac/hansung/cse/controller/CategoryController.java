@@ -44,6 +44,7 @@ public class CategoryController {
             redirectAttributes.addFlashAttribute("successMessage", "등록 완료");
         } catch (DuplicateCategoryException e) {
             bindingResult.rejectValue("name", "duplicate", e.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return "redirect:/categories";
         }
         return "redirect:/categories";
